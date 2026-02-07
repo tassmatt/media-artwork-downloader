@@ -118,7 +118,7 @@ CLI arguments for the script:
 Run a Jellyfin library scan to load the new images into the server.
 
 
-# Future Development (:crossed_fingers:)
+# Future Development (🤞)
 - Functionality to collect fanart for the music side of the Jellyfin server
 - User controlled file naming for local storage
 - Support downloading from multiple fanart sites
