@@ -1,5 +1,5 @@
 # Media Artwork Downloader
-    Version: 1.0.0
+Version: 1.0.0
 
 
 ## Description
@@ -80,12 +80,3 @@ Replace the values in the JSON pairings and save the file to the same directory 
 ## Acknowledgements
 This project was inspired by and built off of emonhoque's [Mediux YAML Downloader](https://github.com/emonhoque/mediux-yaml-downloader).
 
-
-
-
-
-
-
-----old----
-
-The YAML code provided by Mediux into the 'download_list.yaml' file. This YAML code can be found at the desired fanart page. The script downloads the fanart files listed in 'download_collection.yaml' and saves them to a local storage location before copying them to their appropriate locations in the media library. The script follows a Jellyfin compatible naming scheme for media artwork (e.g., poster.jpg, background.jpg).
