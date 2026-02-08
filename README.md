@@ -1,5 +1,5 @@
 # Media Artwork Downloader
-Version: 1.0.0
+Version: 1.0.1
 
 
 ## Description
@@ -26,6 +26,8 @@ The names of poster and background files are simplified when copied to the media
 - Python 3.8
 - YAML package for Python
     - Run `pip install pyyaml` on the machine the script will be running from
+- requests package for Python
+    - Run `pip install requests` on the machine the script will be running from
 
 
 ## Running the Script

@@ -6,7 +6,7 @@ import argparse
 from shutil import copy
 
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -42,10 +42,10 @@ def download_image(args, url, dest_path):
                 for chunk in r.iter_content(1024):
                     f.write(chunk)
         if (args.verbose):
-            print(f"- Downloaded image: {dest_path}")
+            print(f"    - Downloaded: {dest_path}")
     except Exception as e:
         if (args.verbose):
-            print(f"> An error occurred: {e}")
+            print(f"    > An error occurred: {e}")
 
 def import_image(args, src_path, dest_path):
     try:
@@ -53,17 +53,17 @@ def import_image(args, src_path, dest_path):
             if (args.overwrite):
                 copy(src_path, dest_path)
                 if (args.verbose):
-                    print(f"- Imported (overwritten): {dest_path}")
+                    print(f"    - Overwritten")
             else:
                 if (args.verbose):
-                    print(f"- Skipped import (already exists): {dest_path}")
+                    print(f"    - Already exists (skipped)")
         else:
             copy(src_path, dest_path)
             if (args.verbose):
-                print(f"- Imported: {dest_path}")
+                print(f"    - Synced")
     except Exception as e:
         if (args.verbose):
-            print(f"> Failed to import image: {e}")
+            print(f"    > Failed to sync: {e}")
 
 def get_title_year_from_filename(filename):
     base_name = os.path.splitext(filename)[0]
@@ -180,7 +180,7 @@ def process_yaml(file, args):
                 download_image(args, poster_url, local_poster_dest)
             else:
                 if (args.verbose):
-                    print(f"- Skipped download (already exists): {local_poster_dest}")
+                    print(f"    - A poster exists (skipped)")
         
         if background_url:
             file_ext = os.path.splitext(background_url)[1] or ".jpg"
@@ -189,7 +189,7 @@ def process_yaml(file, args):
                 download_image(args, background_url, local_background_dest)
             else:
                 if (args.verbose):
-                    print(f"- Skipped download (already exists): {local_background_dest}")
+                    print(f"    - A background exists (skipped)")
             
 
 
@@ -204,7 +204,7 @@ def process_yaml(file, args):
                     download_image(args, season_poster_url, local_destination)
                 else:
                     if (args.verbose):
-                        print(f"- Skipped download (already exists): {local_destination}")
+                        print(f"    - A poster exists (skipped)")
 
             for episode_num, ep_data in season_data.get("episodes", {}).items():
                 ep_url = ep_data.get("url_poster")
@@ -215,7 +215,7 @@ def process_yaml(file, args):
                         download_image(args, ep_url, local_destination)
                     else:
                         if (args.verbose):
-                            print(f"- Skipped download (already exists): {local_destination}")
+                            print(f"    - A thumbnail exists (skipped)")
 
     print("Downloads complete.")
 
@@ -232,20 +232,35 @@ def sync_library(args):
                 if '[tmdb-' in file:
                     # Movie
                     title_year = file.rsplit(' [tmdb-', 1)[0]
+                    title_year_cleaned = title_year.replace(" - ", " ", 1)
                     media_folder = os.path.join(MOVIES_DIRECTORY, title_year)
+                    media_folder_cleaned = os.path.join(MOVIES_DIRECTORY, title_year_cleaned)
                 elif '[tvdb-' in file:
                     # TV Show
                     title_year = file.rsplit(' [tvdb-', 1)[0]
+                    title_year_cleaned = title_year.replace(" - ", " ", 1)
                     media_folder = os.path.join(SHOWS_DIRECTORY, title_year)
+                    media_folder_cleaned = os.path.join(SHOWS_DIRECTORY, title_year_cleaned)
                 else:
                     continue  # Not a recognized format
 
                 print(f"- {file}...")
 
+                
                 if not os.path.isdir(media_folder):
                     if (args.verbose):
-                        print(f"> Media folder does not exist: {media_folder}")
-                    continue  # Media folder doesn't exist; skip
+                        print(f"    > Media folder does not exist: [{title_year}]")
+                    if ' - ' in title_year:
+                        if (args.verbose):
+                            print(f"    > Attempting alternate title format...")
+                        if not os.path.isdir(media_folder_cleaned):
+                            if (args.verbose):
+                                print(f"    > Media folder does not exist: [{media_folder_cleaned}]")
+                            continue  # Alternate media folder also doesn't exist; skip
+                        else:
+                            media_folder = media_folder_cleaned
+                    else:
+                        continue  # Media folder doesn't exist; skip
 
                 # Determine destination path
                 if '-poster' in file:
@@ -256,7 +271,7 @@ def sync_library(args):
                         season_folder = os.path.join(media_folder, f"Season {int(season_number):02}")
                         if not os.path.isdir(season_folder):
                             if (args.verbose):
-                                print(f"> Season folder does not exist: {season_folder}")
+                                print(f"    > Season folder does not exist: [{season_folder}]")
                             continue  # Season folder doesn't exist; skip
                         dest_path = os.path.join(season_folder, f"poster{file_ext}")
                     else:
@@ -273,7 +288,7 @@ def sync_library(args):
                     season_folder = os.path.join(media_folder, f"Season {int(season_number):02}")
                     if not os.path.isdir(season_folder):
                         if (args.verbose):
-                            print(f"> Season folder does not exist: {season_folder}")
+                            print(f"    > Season folder does not exist: [{season_folder}]")
                         continue  # Season folder doesn't exist; skip
                     # Find the corresponding video file
                     for item in os.listdir(season_folder):
@@ -283,7 +298,7 @@ def sync_library(args):
                             break
                     else:
                         if (args.verbose):
-                                print(f"> No matching episode media file found: {thumb_part}")
+                                print(f"    > No matching episode media file found: [{thumb_part}]")
                         continue  # No matching video file found; skip
                 else:
                     continue  # Not a poster, background, or thumbnail
