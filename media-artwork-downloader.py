@@ -6,7 +6,7 @@ import argparse
 from shutil import copy
 
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 CONFIG_FILE = "config.json"
 
 def load_config():
@@ -156,12 +156,16 @@ def process_yaml(file, args):
     # iterate through each item in the yaml
     for data_id, data in parsed_yaml.items():
         if data.get("seasons"):
+            if args.movies_only:
+                continue
             title, year = get_show_info(data_id)
             if not title or not year:
                 print(f"Could not get TV show title/year for {data_id}")
                 continue
             local_file_name = f"{title} ({year}) [tvdb-{data_id}]"
         else:
+            if args.shows_only:
+                continue
             title, year = get_movie_info(data_id)
             if not title or not year:
                 print(f"Could not get movie title/year for {data_id}")
@@ -223,7 +227,7 @@ def process_yaml(file, args):
 
 def sync_library(args):
     print(f"Beginning library sync...")
-    for root, dirs, files in os.walk(DOWNLOADS_DIRECTORY):
+    for root, files in os.walk(DOWNLOADS_DIRECTORY):
         for file in files:
             if file.endswith(('.jpg', '.png', '.jpeg')):
                 file_ext = os.path.splitext(file)[1] or ".jpg"
@@ -231,12 +235,16 @@ def sync_library(args):
                 # Determine if it's a movie or TV show based on filename
                 if '[tmdb-' in file:
                     # Movie
+                    if (args.shows_only):
+                        continue
                     title_year = file.rsplit(' [tmdb-', 1)[0]
                     title_year_cleaned = title_year.replace(" - ", " ", 1)
                     media_folder = os.path.join(MOVIES_DIRECTORY, title_year)
                     media_folder_cleaned = os.path.join(MOVIES_DIRECTORY, title_year_cleaned)
                 elif '[tvdb-' in file:
                     # TV Show
+                    if (args.movies_only):
+                        continue
                     title_year = file.rsplit(' [tvdb-', 1)[0]
                     title_year_cleaned = title_year.replace(" - ", " ", 1)
                     media_folder = os.path.join(SHOWS_DIRECTORY, title_year)
@@ -319,6 +327,8 @@ def main():
     parser.add_argument('mode', choices=['full', 'pull', 'sync'])
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrites any local files that already exist')
+    parser.add_argument('-s', '--shows-only', action='store_true', help='Only process TV shows')
+    parser.add_argument('-m', '--movies-only', action='store_true', help='Only process movies')
 
     args = parser.parse_args()
 

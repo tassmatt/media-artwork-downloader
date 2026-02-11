@@ -1,5 +1,5 @@
 # Media Artwork Downloader
-Version: 1.0.1
+Version: 1.0.2
 
 
 ## Description
@@ -111,6 +111,8 @@ CLI arguments for the script:
 | --help, -h | Displays information about runnning the script |
 | --verbose, -v | Enables more detailed output |
 | --overwrite, -o | Enables overwriting already existing image files |
+| --shows_only, -s | Only processes TV shows |
+| --movies_only, -m | Only processes movies |
 | full | Required arg option #1 - Performs both ***pull*** and ***sync*** functions |
 | pull | Required arg option #2 - Performs a download of images, does not sync to media library |
 | sync | Required arg option #3 - Performs a sync of downloaded images to media library. Does not download new images |
