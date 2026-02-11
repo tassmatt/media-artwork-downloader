@@ -172,6 +172,9 @@ def process_yaml(file, args):
                 continue
             local_file_name = f"{title} ({year}) [tmdb-{data_id}]"
         
+        if args.string_match not in local_file_name:
+            continue
+
         print(f"\n{title} ({year})")
 
         # grab any posters and backgrounds
@@ -227,11 +230,13 @@ def process_yaml(file, args):
 
 def sync_library(args):
     print(f"Beginning library sync...")
-    for root, files in os.walk(DOWNLOADS_DIRECTORY):
+    for root, dirs, files in os.walk(DOWNLOADS_DIRECTORY):
         for file in files:
             if file.endswith(('.jpg', '.png', '.jpeg')):
                 file_ext = os.path.splitext(file)[1] or ".jpg"
                 src_path = os.path.join(root, file)
+                if args.string_match not in src_path:
+                    continue
                 # Determine if it's a movie or TV show based on filename
                 if '[tmdb-' in file:
                     # Movie
@@ -329,6 +334,7 @@ def main():
     parser.add_argument('-o', '--overwrite', action='store_true', help='Overwrites any local files that already exist')
     parser.add_argument('-s', '--shows-only', action='store_true', help='Only process TV shows')
     parser.add_argument('-m', '--movies-only', action='store_true', help='Only process movies')
+    parser.add_argument('--string_match', action='store', help='Process only the files that contain the specified string in their filename (case-sensitive)')
 
     args = parser.parse_args()
 
