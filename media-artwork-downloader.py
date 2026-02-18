@@ -172,7 +172,7 @@ def process_yaml(file, args):
                 continue
             local_file_name = f"{title} ({year}) [tmdb-{data_id}]"
         
-        if args.string_match not in local_file_name:
+        if args.string_match and args.string_match not in local_file_name:
             continue
 
         print(f"\n{title} ({year})")
