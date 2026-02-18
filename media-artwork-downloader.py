@@ -235,7 +235,7 @@ def sync_library(args):
             if file.endswith(('.jpg', '.png', '.jpeg')):
                 file_ext = os.path.splitext(file)[1] or ".jpg"
                 src_path = os.path.join(root, file)
-                if args.string_match not in src_path:
+                if args.string_match and args.string_match not in src_path:
                     continue
                 # Determine if it's a movie or TV show based on filename
                 if '[tmdb-' in file:
